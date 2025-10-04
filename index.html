@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تقارير تذاكر تركيات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .scenario-box {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .scenario-box:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        .scenario-box.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        .problem-item {
+            border-right: 4px solid #3B82F6;
+            background: white;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* تحسينات لللمس على الموبايل */
+        @media (max-width: 768px) {
+            .mobile-padding {
+                padding: 12px;
+            }
+            .mobile-text {
+                font-size: 14px;
+            }
+            .mobile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-3 md:p-6 max-w-6xl">
+        <!-- الهيدر -->
+        <header class="text-center mb-6">
+            <h1 class="text-xl md:text-3xl font-bold text-blue-600 mobile-text">نظام تقارير تذاكر تركيات</h1>
+            <p class="text-gray-600 mt-2 text-sm md:text-base">منصة متكاملة لإدارة ومتابعة إشكاليات منصة تركيات</p>
+        </header>
+        
+        <!-- قسم إضافة تذكرة جديدة -->
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-6 mobile-padding">
+            <h2 class="text-lg md:text-xl font-semibold mb-4 mobile-text">إضافة تذكرة جديدة</h2>
+            
+            <!-- المعلومات الأساسية -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 mobile-text">رقم التذكرة</label>
+                    <input type="text" id="newTicketNumber" class="w-full border border-gray-300 rounded-md p-2 md:p-3 text-sm md:text-base" placeholder="12345">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 mobile-text">رقم الطلب</label>
+                    <input type="text" id="newRequestNumber" class="w-full border border-gray-300 rounded-md p-2 md:p-3 text-sm md:text-base" placeholder="67890">
+                </div>
+            </div>
+
+            <!-- نوع الخدمة -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2 mobile-text">نوع الخدمة</label>
+                <select id="newServiceType" class="w-full border border-gray-300 rounded-md p-2 md:p-3 text-sm md:text-base" onchange="toggleSections()">
+                    <option value="القسمة">القسمة</option>
+                    <option value="صك الورثة">صك الورثة</option>
+                </select>
+            </div>
+
+            <!-- قسم القسمة -->
+            <div id="divisionSection">
+                <!-- مستوى المورث -->
+                <div class="mb-4 md:mb-6 border-b pb-4">
+                    <h2 class="text-base md:text-lg font-semibold mb-3 text-blue-600 mobile-text">على مستوى المورث</h2>
+                    
+                    <!-- مشاكل المورث - الموجودات النقدية -->
+                    <div class="mb-3 md:mb-4">
+                        <h3 class="font-semibold mb-2 text-sm md:text-base mobile-text">الموجودات النقدية</h3>
+                        <div class="space-y-1 md:space-y-2 bg-blue-50 p-3 md:p-4 rounded-md">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash1" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash1" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">١- تم إيداع الأموال إلى حساب الوارث الافتراضي من البنك المركزي / هيئة سوق المال</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash2" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash2" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٢- تم إيداع الأموال إلى حساب الوارث الافتراضي من البنك المركزي</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash3" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash3" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٣- لم يتم إيداع الأموال إلى حساب الافتراض</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash4" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash4" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٤- لم يكتمل إيداع الأموال إلى حساب المورث الافتراضي</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash5" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash5" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٥- بانتظار رد الجهة الخارجية لإيداع الأموال</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash6" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash6" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٦- رفض من هيئة سوق المال</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="cash7" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="cash7" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٧- رفض من البنك</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- مشاكل المورث - الموجودات الاستثمارية -->
+                    <div class="mb-3 md:mb-4">
+                        <h3 class="font-semibold mb-2 text-sm md:text-base mobile-text">الموجودات الاستثمارية</h3>
+                        <div class="space-y-1 md:space-y-2 bg-green-50 p-3 md:p-4 rounded-md">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="inv1" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="inv1" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">١- تم إيداع المحافظ إلى محافظ الوارث الافتراضي من هيئة سوق المال</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="inv2" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="inv2" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٢- لم يتم إيداع المحافظ إلى محافظ الوارث الافتراضي من هيئة سوق المال</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="inv3" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="inv3" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٣- بانتظار رد الجهة الخارجية لإرسال المحافظ</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="inv4" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="inv4" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٤- رفض إرسال المحافظ</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="inv5" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="inv5" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٥- لم يتم إيداع المحافظ إلى حساب الافتراض</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="inv6" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="inv6" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٦- لم يكتمل إيداع الأموال إلى حساب المورث الافتراضي</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مستوى الورثة -->
+                <div class="mb-4 md:mb-6">
+                    <h2 class="text-base md:text-lg font-semibold mb-3 text-green-600 mobile-text">على مستوى الورثة</h2>
+                    
+                    <!-- الورثة - موجودات نقدية -->
+                    <div class="mb-3 md:mb-4">
+                        <h3 class="font-semibold mb-2 text-sm md:text-base mobile-text">الموجودات النقدية</h3>
+                        <div class="space-y-1 md:space-y-2 bg-blue-50 p-3 md:p-4 rounded-md">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_cash1" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_cash1" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">١- لم يتم اختيار حسابات بنكية</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_cash2" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_cash2" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٢- لا يوجد للمورث حسابات بنكية</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_cash3" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_cash3" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٣- لم يتم استرجاع حساب الوريث</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_cash4" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_cash4" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٤- تم تحويل الأموال للبعض الورثة والبعض الآخر لم يتم التحويل لعدم اختيار حساب</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_cash5" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_cash5" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٥- تم تحويل الأموال إلى جميع الورثة</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- الورثة - موجودات استثمارية (بيع) -->
+                    <div class="mb-3 md:mb-4">
+                        <h3 class="font-semibold mb-2 text-sm md:text-base mobile-text">بيع الموجودات الاستثمارية</h3>
+                        <div class="space-y-1 md:space-y-2 bg-green-50 p-3 md:p-4 rounded-md">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_sell1" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_sell1" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">١- لم يتم اختيار حسابات بنكية</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_sell2" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_sell2" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٢- لا يوجد للمورث حسابات بنكية</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_sell3" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_sell3" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٣- لم يتم استرجاع حساب الوريث</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_sell4" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_sell4" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٤- تم تحويل الأموال للبعض الورثة والبعض الآخر لم يتم التحويل لعدم اختيار حساب</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_sell5" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_sell5" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٥- تم تحويل الأموال إلى جميع الورثة</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_sell6" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_sell6" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٦- فشل التحويل لبعض حسابات الورثة (رفض من البنك)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- الورثة - نقل موجودات استثمارية -->
+                    <div class="mb-3 md:mb-4">
+                        <h3 class="font-semibold mb-2 text-sm md:text-base mobile-text">نقل الموجودات الاستثمارية</h3>
+                        <div class="space-y-1 md:space-y-2 bg-purple-50 p-3 md:p-4 rounded-md">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer1" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer1" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">١- استرجاع جميع المحافظ</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer2" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer2" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٢- الورثة ليس لديهم محافظ</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer3" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer3" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٣- لم يتم اختيار المحافظ</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer4" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer4" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٤- تم استرجاع المحافظ ولم يتم اختيار أحد منها</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer5" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer5" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٥- أحد الورثة ليس لديه محفظة</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer6" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer6" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٦- لم يتم بعد استرجاع المحافظ للورثة</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer7" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer7" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٧- لم يتم بعد استرجاع المحافظ لأحد الورثة</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer8" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer8" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٨- تم نقل الأسهم لجميع الورثة</label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="heir_transfer9" class="mt-1 ml-2 scale-110 md:scale-100">
+                                <label for="heir_transfer9" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٩- فشل النقل (أحد الورثة لا يوجد لديه محفظة)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم صك الورثة -->
+            <div id="inheritanceDocumentSection" class="hidden">
+                <div class="mb-4 md:mb-6">
+                    <h2 class="text-base md:text-lg font-semibold mb-3 text-purple-600 mobile-text">مشاكل صك الورثة</h2>
+                    
+                    <div class="space-y-1 md:space-y-2 bg-purple-50 p-3 md:p-4 rounded-md">
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc1" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc1" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">١- نقص في البيانات الأساسية</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc2" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc2" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٢- بيانات الورثة غير مكتملة</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc3" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc3" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٣- خطأ في تواريخ الوفاة أو الميلاد</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc4" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc4" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٤- وثائق الهوية غير واضحة أو منتهية الصلاحية</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc5" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc5" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٥- نقص في المستندات المطلوبة</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc6" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc6" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٦- تناقض في المعلومات بين المستندات</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc7" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc7" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٧- حاجة للتوثيق الإضافي</label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="doc8" class="mt-1 ml-2 scale-110 md:scale-100">
+                            <label for="doc8" class="text-gray-700 text-xs md:text-sm mobile-text mr-2">٨- انتظار موافقة الجهات الحكومية</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="addTicket()" class="w-full bg-green-500 text-white py-3 rounded-md hover:bg-green-600 font-medium text-sm md:text-base mobile-text">
+                إضافة التذكرة
+            </button>
+        </div>
+
+        <!-- قائمة التذاكر المضافة -->
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-6 mobile-padding">
+            <h2 class="text-lg md:text-xl font-semibold mb-4 mobile-text">التذاكر المضافة</h2>
+            <div id="ticketsList" class="space-y-3">
+                <p class="text-gray-500 text-center text-sm md:text-base">لم يتم إضافة أي تذاكر بعد</p>
+            </div>
+        </div>
+
+        <!-- التقرير النهائي -->
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mobile-padding">
+            <h2 class="text-lg md:text-xl font-semibold mb-4 mobile-text">التقرير النهائي للنسخ</h2>
+            <div class="bg-gray-50 p-3 md:p-4 rounded-md">
+                <textarea id="finalReport" rows="8" class="w-full border border-gray-300 rounded-md p-3 font-mono text-xs md:text-sm mobile-text" readonly></textarea>
+            </div>
+            <div class="flex flex-col md:flex-row gap-2 mt-4">
+                <button onclick="copyToClipboard()" class="flex-1 bg-blue-500 text-white py-2 md:py-3 rounded-md hover:bg-blue-600 text-sm md:text-base mobile-text">
+                    نسخ التقرير
+                </button>
+                <button onclick="clearAll()" class="flex-1 bg-red-500 text-white py-2 md:py-3 rounded-md hover:bg-red-600 text-sm md:text-base mobile-text">
+                    مسح الكل
+                </button>
+            </div>
+        </div>
+
+        <!-- الفوتر -->
+        <footer class="text-center mt-8 text-gray-500 text-xs md:text-sm">
+            <p>تم التطوير خصيصاً لمنصة تركيات - جميع الحقوق محفوظة © 2024</p>
+        </footer>
+    </div>
+
+    <script>
+        let tickets = [];
+
+        function toggleSections() {
+            const serviceType = document.getElementById('newServiceType').value;
+            const divisionSection = document.getElementById('divisionSection');
+            const inheritanceSection = document.getElementById('inheritanceDocumentSection');
+
+            if (serviceType === 'القسمة') {
+                divisionSection.classList.remove('hidden');
+                inheritanceSection.classList.add('hidden');
+            } else {
+                divisionSection.classList.add('hidden');
+                inheritanceSection.classList.remove('hidden');
+            }
+        }
+
+        function addTicket() {
+            const ticketNumber = document.getElementById('newTicketNumber').value;
+            const requestNumber = document.getElementById('newRequestNumber').value;
+            const serviceType = document.getElementById('newServiceType').value;
+
+            if (!ticketNumber || !requestNumber) {
+                alert('يرجى إدخال رقم التذكرة ورقم الطلب');
+                return;
+            }
+
+            let ticket = {
+                id: Date.now(),
+                ticketNumber,
+                requestNumber,
+                serviceType
+            };
+
+            if (serviceType === 'القسمة') {
+                // جمع مشاكل المورث
+                const cashProblems = [];
+                const investmentProblems = [];
+                
+                // المورث - نقدية
+                if (document.getElementById('cash1').checked) cashProblems.push('١- تم إيداع الأموال إلى حساب الوارث الافتراضي من البنك المركزي / هيئة سوق المال');
+                if (document.getElementById('cash2').checked) cashProblems.push('٢- تم إيداع الأموال إلى حساب الوارث الافتراضي من البنك المركزي');
+                if (document.getElementById('cash3').checked) cashProblems.push('٣- لم يتم إيداع الأموال إلى حساب الافتراض');
+                if (document.getElementById('cash4').checked) cashProblems.push('٤- لم يكتمل إيداع الأموال إلى حساب المورث الافتراضي');
+                if (document.getElementById('cash5').checked) cashProblems.push('٥- بانتظار رد الجهة الخارجية لإيداع الأموال');
+                if (document.getElementById('cash6').checked) cashProblems.push('٦- رفض من هيئة سوق المال');
+                if (document.getElementById('cash7').checked) cashProblems.push('٧- رفض من البنك');
+
+                // المورث - استثمارية
+                if (document.getElementById('inv1').checked) investmentProblems.push('١- تم إيداع المحافظ إلى محافظ الوارث الافتراضي من هيئة سوق المال');
+                if (document.getElementById('inv2').checked) investmentProblems.push('٢- لم يتم إيداع المحافظ إلى محافظ الوارث الافتراضي من هيئة سوق المال');
+                if (document.getElementById('inv3').checked) investmentProblems.push('٣- بانتظار رد الجهة الخارجية لإرسال المحافظ');
+                if (document.getElementById('inv4').checked) investmentProblems.push('٤- رفض إرسال المحافظ');
+                if (document.getElementById('inv5').checked) investmentProblems.push('٥- لم يتم إيداع المحافظ إلى حساب الافتراض');
+                if (document.getElementById('inv6').checked) investmentProblems.push('٦- لم يكتمل إيداع الأموال إلى حساب المورث الافتراضي');
+
+                // جمع مشاكل الورثة
+                const heirCashProblems = [];
+                const heirSellProblems = [];
+                const heirTransferProblems = [];
+
+                // الورثة - نقدية
+                if (document.getElementById('heir_cash1').checked) heirCashProblems.push('١- لم يتم اختيار حسابات بنكية');
+                if (document.getElementById('heir_cash2').checked) heirCashProblems.push('٢- لا يوجد للمورث حسابات بنكية');
+                if (document.getElementById('heir_cash3').checked) heirCashProblems.push('٣- لم يتم استرجاع حساب الوريث');
+                if (document.getElementById('heir_cash4').checked) heirCashProblems.push('٤- تم تحويل الأموال للبعض الورثة والبعض الآخر لم يتم التحويل لعدم اختيار حساب');
+                if (document.getElementById('heir_cash5').checked) heirCashProblems.push('٥- تم تحويل الأموال إلى جميع الورثة');
+
+                // الورثة - استثمارية (بيع)
+                if (document.getElementById('heir_sell1').checked) heirSellProblems.push('١- لم يتم اختيار حسابات بنكية');
+                if (document.getElementById('heir_sell2').checked) heirSellProblems.push('٢- لا يوجد للمورث حسابات بنكية');
+                if (document.getElementById('heir_sell3').checked) heirSellProblems.push('٣- لم يتم استرجاع حساب الوريث');
+                if (document.getElementById('heir_sell4').checked) heirSellProblems.push('٤- تم تحويل الأموال للبعض الورثة والبعض الآخر لم يتم التحويل لعدم اختيار حساب');
+                if (document.getElementById('heir_sell5').checked) heirSellProblems.push('٥- تم تحويل الأموال إلى جميع الورثة');
+                if (document.getElementById('heir_sell6').checked) heirSellProblems.push('٦- فشل التحويل لبعض حسابات الورثة (رفض من البنك)');
+
+                // الورثة - نقل
+                if (document.getElementById('heir_transfer1').checked) heirTransferProblems.push('١- استرجاع جميع المحافظ');
+                if (document.getElementById('heir_transfer2').checked) heirTransferProblems.push('٢- الورثة ليس لديهم محافظ');
+                if (document.getElementById('heir_transfer3').checked) heirTransferProblems.push('٣- لم يتم اختيار المحافظ');
+                if (document.getElementById('heir_transfer4').checked) heirTransferProblems.push('٤- تم استرجاع المحافظ ولم يتم اختيار أحد منها');
+                if (document.getElementById('heir_transfer5').checked) heirTransferProblems.push('٥- أحد الورثة ليس لديه محفظة');
+                if (document.getElementById('heir_transfer6').checked) heirTransferProblems.push('٦- لم يتم بعد استرجاع المحافظ للورثة');
+                if (document.getElementById('heir_transfer7').checked) heirTransferProblems.push('٧- لم يتم بعد استرجاع المحافظ لأحد الورثة');
+                if (document.getElementById('heir_transfer8').checked) heirTransferProblems.push('٨- تم نقل الأسهم لجميع الورثة');
+                if (document.getElementById('heir_transfer9').checked) heirTransferProblems.push('٩- فشل النقل (أحد الورثة لا يوجد لديه محفظة)');
+
+                ticket = {
+                    ...ticket,
+                    cashProblems,
+                    investmentProblems,
+                    heirCashProblems,
+                    heirSellProblems,
+                    heirTransferProblems
+                };
+            } else {
+                // جمع مشاكل صك الورثة
+                const documentProblems = [];
+                
+                if (document.getElementById('doc1').checked) documentProblems.push('١- نقص في البيانات الأساسية');
+                if (document.getElementById('doc2').checked) documentProblems.push('٢- بيانات الورثة غير مكتملة');
+                if (document.getElementById('doc3').checked) documentProblems.push('٣- خطأ في تواريخ الوفاة أو الميلاد');
+                if (document.getElementById('doc4').checked) documentProblems.push('٤- وثائق الهوية غير واضحة أو منتهية الصلاحية');
+                if (document.getElementById('doc5').checked) documentProblems.push('٥- نقص في المستندات المطلوبة');
+                if (document.getElementById('doc6').checked) documentProblems.push('٦- تناقض في المعلومات بين المستندات');
+                if (document.getElementById('doc7').checked) documentProblems.push('٧- حاجة للتوثيق الإضافي');
+                if (document.getElementById('doc8').checked) documentProblems.push('٨- انتظار موافقة الجهات الحكومية');
+
+                ticket = {
+                    ...ticket,
+                    documentProblems
+                };
+            }
+
+            tickets.push(ticket);
+            updateTicketsList();
+            updateFinalReport();
+            clearForm();
+        }
+
+        function updateTicketsList() {
+            const container = document.getElementById('ticketsList');
+            
+            if (tickets.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center text-sm md:text-base">لم يتم إضافة أي تذاكر بعد</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            tickets.forEach((ticket, index) => {
+                const ticketDiv = document.createElement('div');
+                ticketDiv.className = 'border border-gray-300 rounded-md p-3 fade-in';
+                
+                let problemsHtml = '';
+                
+                if (ticket.serviceType === 'القسمة') {
+                    // مشاكل المورث
+                    if (ticket.cashProblems.length > 0 || ticket.investmentProblems.length > 0) {
+                        problemsHtml += '<div class="mb-3"><strong class="text-blue-600 text-sm md:text-base">على مستوى المورث:</strong>';
+                        if (ticket.cashProblems.length > 0) {
+                            problemsHtml += '<div class="mr-2 mt-1"><strong class="text-xs md:text-sm">الموجودات النقدية:</strong>';
+                            ticket.cashProblems.forEach(problem => {
+                                problemsHtml += `<div class="mr-2 text-xs md:text-sm">${problem}</div>`;
+                            });
+                            problemsHtml += '</div>';
+                        }
+                        if (ticket.investmentProblems.length > 0) {
+                            problemsHtml += '<div class="mr-2 mt-1"><strong class="text-xs md:text-sm">الموجودات الاستثمارية:</strong>';
+                            ticket.investmentProblems.forEach(problem => {
+                                problemsHtml += `<div class="mr-2 text-xs md:text-sm">${problem}</div>`;
+                            });
+                            problemsHtml += '</div>';
+                        }
+                        problemsHtml += '</div>';
+                    }
+
+                    // مشاكل الورثة
+                    if (ticket.heirCashProblems.length > 0 || ticket.heirSellProblems.length > 0 || ticket.heirTransferProblems.length > 0) {
+                        problemsHtml += '<div><strong class="text-green-600 text-sm md:text-base">على مستوى الورثة:</strong>';
+                        
+                        if (ticket.heirCashProblems.length > 0) {
+                            problemsHtml += '<div class="mr-2 mt-1"><strong class="text-xs md:text-sm">الموجودات النقدية:</strong>';
+                            ticket.heirCashProblems.forEach(problem => {
+                                problemsHtml += `<div class="mr-2 text-xs md:text-sm">${problem}</div>`;
+                            });
+                            problemsHtml += '</div>';
+                        }
+                        
+                        if (ticket.heirSellProblems.length > 0) {
+                            problemsHtml += '<div class="mr-2 mt-1"><strong class="text-xs md:text-sm">بيع الموجودات الاستثمارية:</strong>';
+                            ticket.heirSellProblems.forEach(problem => {
+                                problemsHtml += `<div class="mr-2 text-xs md:text-sm">${problem}</div>`;
+                            });
+                            problemsHtml += '</div>';
+                        }
+                        
+                        if (ticket.heirTransferProblems.length > 0) {
+                            problemsHtml += '<div class="mr-2 mt-1"><strong class="text-xs md:text-sm">نقل الموجودات الاستثمارية:</strong>';
+                            ticket.heirTransferProblems.forEach(problem => {
+                                problemsHtml += `<div class="mr-2 text-xs md:text-sm">${problem}</div>`;
+                            });
+                            problemsHtml += '</div>';
+                        }
+                        
+                        problemsHtml += '</div>';
+                    }
+                } else {
+                    // مشاكل صك الورثة
+                    if (ticket.documentProblems && ticket.documentProblems.length > 0) {
+                        problemsHtml += '<div><strong class="text-purple-600 text-sm md:text-base">مشاكل صك الورثة:</strong>';
+                        problemsHtml += '<div class="mr-2 mt-1">';
+                        ticket.documentProblems.forEach(problem => {
+                            problemsHtml += `<div class="mr-2 text-xs md:text-sm">${problem}</div>`;
+                        });
+                        problemsHtml += '</div></div>';
+                    }
+                }
+
+                ticketDiv.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex flex-col md:flex-row md:gap-4 gap-2 mb-2">
+                                <span class="text-xs md:text-sm"><strong>التذكرة:</strong> ${ticket.ticketNumber}</span>
+                                <span class="text-xs md:text-sm"><strong>الطلب:</strong> ${ticket.requestNumber}</span>
+                                <span class="text-xs md:text-sm"><strong>الخدمة:</strong> ${ticket.serviceType}</span>
+                            </div>
+                            ${problemsHtml}
+                        </div>
+                        <button onclick="removeTicket(${index})" class="text-red-500 hover:text-red-700 mr-2 text-lg">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                container.appendChild(ticketDiv);
+            });
+        }
+
+        function removeTicket(index) {
+            tickets.splice(index, 1);
+            updateTicketsList();
+            updateFinalReport();
+        }
+
+        function updateFinalReport() {
+            const reportTextarea = document.getElementById('finalReport');
+            
+            if (tickets.length === 0) {
+                reportTextarea.value = '';
+                return;
+            }
+
+            let report = `تقرير تذاكر تركيات\n`;
+            report += `التاريخ: ${new Date().toLocaleDateString('ar-SA')}\n`;
+            report += `────────────────────\n\n`;
+
+            tickets.forEach(ticket => {
+                report += `التذكرة: ${ticket.ticketNumber}\n`;
+                report += `الطلب: ${ticket.requestNumber}\n`;
+                report += `الخدمة: ${ticket.serviceType}\n`;
+                
+                if (ticket.serviceType === 'القسمة') {
+                    // مشاكل المورث
+                    if (ticket.cashProblems.length > 0 || ticket.investmentProblems.length > 0) {
+                        report += `على مستوى المورث:\n`;
+                        
+                        if (ticket.cashProblems.length > 0) {
+                            report += `الموجودات النقدية:\n`;
+                            ticket.cashProblems.forEach(problem => {
+                                report += `   ${problem}\n`;
+                            });
+                        }
+                        
+                        if (ticket.investmentProblems.length > 0) {
+                            report += `الموجودات الاستثمارية:\n`;
+                            ticket.investmentProblems.forEach(problem => {
+                                report += `   ${problem}\n`;
+                            });
+                        }
+                    }
+
+                    // مشاكل الورثة
+                    if (ticket.heirCashProblems.length > 0 || ticket.heirSellProblems.length > 0 || ticket.heirTransferProblems.length > 0) {
+                        report += `على مستوى الورثة:\n`;
+                        
+                        if (ticket.heirCashProblems.length > 0) {
+                            report += `الموجودات النقدية:\n`;
+                            ticket.heirCashProblems.forEach(problem => {
+                                report += `   ${problem}\n`;
+                            });
+                        }
+                        
+                        if (ticket.heirSellProblems.length > 0) {
+                            report += `بيع الموجودات الاستثمارية:\n`;
+                            ticket.heirSellProblems.forEach(problem => {
+                                report += `   ${problem}\n`;
+                            });
+                        }
+                        
+                        if (ticket.heirTransferProblems.length > 0) {
+                            report += `نقل الموجودات الاستثمارية:\n`;
+                            ticket.heirTransferProblems.forEach(problem => {
+                                report += `   ${problem}\n`;
+                            });
+                        }
+                    }
+                } else {
+                    // مشاكل صك الورثة
+                    if (ticket.documentProblems && ticket.documentProblems.length > 0) {
+                        report += `مشاكل صك الورثة:\n`;
+                        ticket.documentProblems.forEach(problem => {
+                            report += `   ${problem}\n`;
+                        });
+                    }
+                }
+                
+                report += `────────────────────\n`;
+            });
+
+            reportTextarea.value = report;
+        }
+
+        function copyToClipboard() {
+            const reportTextarea = document.getElementById('finalReport');
+            
+            if (!reportTextarea.value) {
+                alert('لا يوجد تقرير للنسخ');
+                return;
+            }
+
+            reportTextarea.select();
+            document.execCommand('copy');
+            
+            alert('تم نسخ التقرير إلى الحافظة! يمكنك الآن لصقه في الواتساب');
+        }
+
+        function clearForm() {
+            document.getElementById('newTicketNumber').value = '';
+            document.getElementById('newRequestNumber').value = '';
+            // إلغاء تحديد جميع checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function clearAll() {
+            tickets = [];
+            updateTicketsList();
+            updateFinalReport();
+        }
+
+        // تهيئة أولية
+        toggleSections();
+    </script>
+</body>
+</html>
